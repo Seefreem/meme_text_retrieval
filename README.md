@@ -16,5 +16,11 @@ We hypothesize that the cross-modal embedding model's performance might degrade 
 ## Current Status
 This project is currently in progress. 
 
+## Preliminary Result
+![pic](/pictures/retrieval_probabilities_matrix.png "retrieval probabilities matrix")
+
+This hot map shows the image-text similarity score, where the x-axis is the indexes of meme captions and the y-axis is the meme indexes. There are 60% meme-text pairs that have the highest similarity on the right indexes, which means the model performance significantly better than random behavior, but there are still rooms for improvement.
+
+
 # License
 TODO
