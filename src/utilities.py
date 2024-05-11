@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from PIL import Image
+import torch
 
 def resize_and_crop_image(image, target_width, target_height):
     """
@@ -54,3 +55,38 @@ def visualize_meme(image, caption):
     plt.axis('off')  # Turn off the axis
     plt.title(caption)  # Set the caption as the title
     plt.show()
+
+
+def recall_at_k(score_matrix):
+    '''
+    Calculating the final R@K scores for image-text retrieval or text-image retrieval.
+    The row elements are taken as queries.
+    Input:
+        score_matrix [torch.tensor]: a matrix 
+    Return:
+        R@1, R@5, R@10 and R@mean for both image-text retrieval or text-image retrieval.
+    '''
+
+    # image indexes
+    m_shape = score_matrix.shape
+    # top 10 image indexes
+    _, rank_txt_idx = score_matrix.topk(10, dim=1)
+    # ground truth of image indexes, each row gets extended
+    gt_img_j = torch.LongTensor([i for i in range(m_shape[0])]).unsqueeze(1).expand_as(rank_txt_idx)
+    # non-zero element indexes
+    # nonzero() Return the indices of the elements that are non-zero.
+    # rank.shape = (rows, 2), (:, 0) are the values, (:, 1) are the indices 
+    rank = (rank_txt_idx == gt_img_j).nonzero()[:, 1]
+    if rank.numel():
+        r1 = (rank < 1).sum().item() / m_shape[0]
+        r5 = (rank < 5).sum().item() / m_shape[0]
+        r10 = (rank < 10).sum().item() / m_shape[0]
+        r_mean = (r1 + r5 + r10) / 3
+    else:
+        r1, r5, r10, r_mean = 0, 0, 0, 0
+    eval_log = {'r1': r1,
+            'r5': r5,
+            'r10': r10,
+            'r_mean': r_mean
+            }
+    return eval_log

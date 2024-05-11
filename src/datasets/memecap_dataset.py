@@ -24,7 +24,7 @@ class memecap_dataset:
             data = json.load(file)
         return data
     
-    def load_datasets(self, from_idx = 0, to_idx = -1):
+    def load_datasets(self, from_idx = 0, to_idx = -1, splits = []):
         """Load images and return a DatasetDict."""
         datasets = {}
         directory = 'data/memes'
@@ -32,7 +32,9 @@ class memecap_dataset:
             'test': self.test_text_data,
             'trainval': self.trainval_text_data
         }
-        for split, data in data_splits.items():
+        for split in splits:
+            data = data_splits[split]
+            print(f'Split: {split}. Length: {len(data)} ')
             images = []
             captions = []
             for item in data[from_idx:to_idx]:
@@ -44,22 +46,26 @@ class memecap_dataset:
                         if self.target_width > 0 and self.target_height > 0:
                             img = resize_and_crop_image(img, self.target_width, self.target_height)
                         img_array = np.array(img)
-                        images.append(img_array)
+                        
+                        if img_array.shape[2] == 4: # handle images with shape of (802, 640, 4)
+                            images.append(img_array[:, :, :-1])
+                        else:
+                            images.append(img_array)
                         captions.append(item.get('meme_captions', [""])[0])
                 except IOError:
                     print(f"Error opening image {img_path}")
-            datasets[split] = Dataset.from_dict({
+            datasets[split] = {
                 'image': images, # image elements will be transformed into lists
                 'caption': captions
-            })
+            }
         
         self.dataset = DatasetDict(datasets)
-    
-    def load_images(self, image_fnames):
+
+    def load_images(self, number = 10):
         """Load images and return a list of Images."""
         images = []
         directory = 'data/memes'
-        for item in image_fnames:
+        for item in self.trainval_text_data[:number]:
             img_path = os.path.join(directory, item['img_fname'])
             try:
                 with Image.open(img_path) as img:
