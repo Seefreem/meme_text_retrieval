@@ -17,10 +17,17 @@ We hypothesize that the cross-modal embedding model's performance might degrade 
 This project is currently in progress. 
 
 ## zero-shot evaluation
-- Dataset: the test set of MemeCap. 558 samples.
+- Dataset: the test set of MemeCap. 558 samples.  
+
+| Model       | T2I R@1     |T2I  R@5     |T2I  R@10    |T2I   mean   | I2T R@1     |I2T  R@5     |I2T  R@10    |I2T mean |overall mean | 
+| ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ------- | ----------- |  
+| ALIGN       | 0.539       | 0.726       | 0.774       | 0.680       | 0.568       | 0.742       | 0.789       | 0.700   |0.690        |
+| CLIP        | 0.457       | 0.665       | 0.733       | 0.618       | 0.518       | 0.720       | 0.772       | 0.670   |0.644        |
+| ALBEF       | 0.120       | 0.200       | 0.254       | 0.191       | 0.093       | 0.157       | 0.211       | 0.154   |0.173        |
 
 ### ALIGN
 The ALIGN model is a global alignment algorithm.
+Text-meme retrieval scores:  
 - R@1: 0.5394265232974911,
 - R@5: 0.7258064516129032,
 - R@10: 0.7741935483870968,
@@ -32,6 +39,7 @@ This hot map shows the first 100 text-image similarity scores of the ALIGN model
 
 ### CLIP
 The CLIP model is a global alignment algorithm.
+Text-meme retrieval scores:  
 - R@1: 0.45698924731182794
 - R@5: 0.6648745519713262
 - R@10: 0.7329749103942652
@@ -46,6 +54,15 @@ The UNITER model is a local-involved alignment algorithm.
 
 ### ALBEF
 The ALBEF model is a local-involved alignment algorithm.
+Text-meme retrieval scores:    
+R@1: 0.11985688729874776  
+R@5: 0.2003577817531306  
+R@10: 0.25402504472271914  
+R_mean: 0.19141323792486584  
+
+![pic](/pictures/txt2img_albef.png "retrieval probabilities matrix")
+
+This hot map shows the first 100 text-image augmented similarity scores of the ALBEF model. The hot map is even more sparse.   
 
 ### SGRAF
 The SGRAF model is a relation-aware local-involved alignment algorithm.
