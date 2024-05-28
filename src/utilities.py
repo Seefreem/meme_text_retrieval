@@ -1,6 +1,10 @@
 import matplotlib.pyplot as plt
 from PIL import Image
 import torch
+from torchvision import transforms
+from src.caption_dataset import re_eval_dataset
+from torch.utils.data import DataLoader
+import torch.distributed as dist
 
 def resize_and_crop_image(image, target_width, target_height):
     """
@@ -57,7 +61,7 @@ def visualize_meme(image, caption):
     plt.show()
 
 
-def recall_at_k(score_matrix):
+def recall_at_k(score_matrix, prefix = 't2i_'):
     '''
     Calculating the final R@K scores for image-text retrieval or text-image retrieval.
     The row elements are taken as queries.
@@ -84,9 +88,49 @@ def recall_at_k(score_matrix):
         r_mean = (r1 + r5 + r10) / 3
     else:
         r1, r5, r10, r_mean = 0, 0, 0, 0
-    eval_log = {'r1': r1,
-            'r5': r5,
-            'r10': r10,
-            'r_mean': r_mean
-            }
+    eval_log = {prefix+'r1': r1,
+                prefix+'r5': r5,
+                prefix+'r10': r10,
+                prefix+'r_mean': r_mean
+                }
     return eval_log
+
+
+def create_dataset(config):
+    '''
+    Create dataset for ALBEF model
+
+    '''
+    normalize = transforms.Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711))
+
+    test_transform = transforms.Compose([
+        transforms.Resize((config['image_res'],config['image_res']),interpolation=Image.BICUBIC),
+        transforms.ToTensor(),
+        normalize,
+        ])   
+
+    test_dataset = re_eval_dataset(config['test_file'], test_transform, config['image_root'])    
+    print(len(test_dataset))            
+    return test_dataset   
+
+def create_loader(datasets, samplers, batch_size, num_workers, is_trains, collate_fns):
+    loaders = []
+    for dataset,sampler,bs,n_worker,is_train,collate_fn in zip(datasets,samplers,batch_size,num_workers,is_trains,collate_fns):
+        if is_train:
+            shuffle = (sampler is None)
+            drop_last = True
+        else:
+            shuffle = False
+            drop_last = False
+        loader = DataLoader(
+            dataset,
+            batch_size=bs,
+            num_workers=n_worker,
+            pin_memory=True,
+            sampler=sampler,
+            shuffle=shuffle,
+            collate_fn=collate_fn,
+            drop_last=drop_last,
+        )              
+        loaders.append(loader)
+    return loaders   

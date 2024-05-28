@@ -4,7 +4,7 @@ import os
 import numpy as np
 from PIL import Image
 from datasets import DatasetDict, Dataset
-from src.utilities import *
+from src.utilities import resize_and_crop_image
 
 class memecap_dataset:
     def __init__(self, target_width, target_height):
@@ -37,20 +37,23 @@ class memecap_dataset:
             print(f'Split: {split}. Length: {len(data)} ')
             images = []
             captions = []
-            for item in data[from_idx:to_idx]:
+            for i in range(from_idx, (len(data) if to_idx == -1 else to_idx)):
+                item = data[i]
                 img_path = os.path.join(directory, item['img_fname'])
                 
                 try:
                     with Image.open(img_path) as img:
-                        
                         if self.target_width > 0 and self.target_height > 0:
                             img = resize_and_crop_image(img, self.target_width, self.target_height)
-                        img_array = np.array(img)
+                        img_array = np.array(img) # dtype=numpy.uint8
                         
-                        if img_array.shape[2] == 4: # handle images with shape of (802, 640, 4)
+                        if len(img_array.shape) == 2: # handle gray images with shape of (802, 640)
+                            images.append(np.stack([img_array, img_array, img_array], axis=-1))
+                        elif img_array.shape[2] == 4: # handle images with shape of (802, 640, 4)
                             images.append(img_array[:, :, :-1])
                         else:
                             images.append(img_array)
+                            # Only load the first meme caption
                         captions.append(item.get('meme_captions', [""])[0])
                 except IOError:
                     print(f"Error opening image {img_path}")
@@ -58,7 +61,7 @@ class memecap_dataset:
                 'image': images, # image elements will be transformed into lists
                 'caption': captions
             }
-        
+        print('Finished loading memes')
         self.dataset = DatasetDict(datasets)
 
     def load_images(self, number = 10):
