@@ -164,7 +164,7 @@ temp.md
 *.pth
 /data
 /check_points
-/outputs
+/output
 /wandb
 .DS_Store/
 /back-up
