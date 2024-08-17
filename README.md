@@ -16,7 +16,7 @@ We hypothesize that the cross-modal embedding model's performance might degrade 
 ## Current Status
 This project is currently in progress. 
 
-## zero-shot evaluation
+## zero-shot and fine-tuning evaluation
 - Dataset: the test set of MemeCap. 558 samples.  
 
 | Model       | T2I R@1     |T2I  R@5     |T2I  R@10    |T2I   mean   | I2T R@1     |I2T  R@5     |I2T  R@10    |I2T mean |overall mean | 
@@ -24,6 +24,9 @@ This project is currently in progress.
 | ALIGN       | 0.539       | 0.726       | 0.774       | 0.680       | 0.568       | 0.742       | 0.789       | 0.700   |0.690        |
 | CLIP        | 0.457       | 0.665       | 0.733       | 0.618       | 0.518       | 0.720       | 0.772       | 0.670   |0.644        |
 | ALBEF       | 0.120       | 0.200       | 0.254       | 0.191       | 0.093       | 0.157       | 0.211       | 0.154   |0.173        |
+|fine-tuned ALIGN  | 0.512 | 0.680 | 0.758 | 0.650 | 0.490 | 0.687 | 0.739 | 0.639 | 0.644 
+
+For more details, please refer to the **final report** PDF.  
 
 ### ALIGN
 The ALIGN model is a global alignment algorithm.
